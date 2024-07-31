@@ -5,14 +5,13 @@ import Messages from './Messages';
 
 const POST_MESSAGE = gql`
   mutation($user: String!, $content: String!) {
-    postMessage(user: $user, content: $content)
+    postMessage(user: $user, content: $content) {
+      id
+      user
+      content
+    }
   }
 `;
-
-const useQuery = () => {
-  return new URLSearchParams(useLocation().search);
-};
-
 
 interface ChatProps {
   openChat: (open: boolean) => void;

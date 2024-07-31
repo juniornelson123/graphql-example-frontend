@@ -1,5 +1,5 @@
-import React from 'react';
-import { useQuery, gql } from '@apollo/client';
+import React, { useEffect } from 'react';
+import { useQuery, gql, useSubscription } from '@apollo/client';
 
 const GET_MESSAGES = gql`
   query {
@@ -11,6 +11,17 @@ const GET_MESSAGES = gql`
   }
 `;
 
+const MESSAGE_ADDED = gql`
+    subscription {
+        messageAdded {
+            id
+            user
+            content
+        }
+    }
+`;
+
+
 interface Message {
   id: string;
   user: string;
@@ -18,7 +29,21 @@ interface Message {
 }
 
 const Messages: React.FC<{ user: string }> = ({ user }) => {
-  const { data, loading, error } = useQuery(GET_MESSAGES);
+  const { data, loading, error, subscribeToMore } = useQuery(GET_MESSAGES);
+  // const { data: subscriptionData } = useSubscription(MESSAGE_ADDED);
+
+  useEffect(() => {
+    subscribeToMore({
+        document: MESSAGE_ADDED,
+        updateQuery: (prev, { subscriptionData }) => {
+            if (!subscriptionData.data) return prev;
+            const newMessage = subscriptionData.data.messageAdded;
+            return Object.assign({}, prev, {
+                messages: [...prev.messages, newMessage],
+            });
+        },
+    });
+}, [subscribeToMore]);
 
   if (loading) return <p>Carregando...</p>;
   if (error) return <p>Erro :(</p>;

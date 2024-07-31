@@ -23,7 +23,6 @@ const CreateUser: React.FC<CreateUserProps> = ({ openChat }) => {
     e.preventDefault();
     if (username) {
       try {
-        await addUser({ variables: { username } });
         localStorage.setItem("username", username)
         openChat(true);
       } catch (error) {
